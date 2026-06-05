@@ -1,6 +1,11 @@
 let currentSpeed = 0;
 let watchId = null;
 
+
+// ======================
+// Elements
+// ======================
+
 const speedDisplay =
     document.getElementById("speed");
 
@@ -34,19 +39,27 @@ const gpsStatus =
 // ======================
 
 const opts = {
+
     angle: -0.2,
+
     lineWidth: 0.25,
+
     radiusScale: 1,
 
     pointer: {
+
         length: 0.6,
+
         strokeWidth: 0.035
+
     },
 
     limitMax: false,
+
     limitMin: false,
 
     colorStart: "#ffffff",
+
     colorStop: "#ffffff",
 
     strokeColor: "#333",
@@ -61,13 +74,16 @@ const gauge =
     new Gauge(target).setOptions(opts);
 
 gauge.maxValue = 180;
+
 gauge.setMinValue(0);
+
 gauge.animationSpeed = 32;
+
 gauge.set(0);
 
 
 // ======================
-// Speed Limit Check
+// Warning Logic
 // ======================
 
 function checkLimit(speed) {
@@ -91,7 +107,8 @@ function checkLimit(speed) {
 
         }
 
-    } else {
+    }
+    else {
 
         document.body.classList.remove(
             "alert-active"
@@ -101,13 +118,14 @@ function checkLimit(speed) {
             "none";
 
         alertSound.pause();
+
         alertSound.currentTime = 0;
     }
 }
 
 
 // ======================
-// Update Speed UI
+// Update Speed
 // ======================
 
 function updateSpeed(speed) {
@@ -124,6 +142,50 @@ function updateSpeed(speed) {
 
 
 // ======================
+// Motion Sensor Fallback
+// ======================
+
+function startMotionDetection() {
+
+    if (
+        typeof DeviceMotionEvent ===
+        "undefined"
+    ) {
+
+        return;
+    }
+
+    window.addEventListener(
+        "devicemotion",
+        event => {
+
+            const acc =
+                event.accelerationIncludingGravity;
+
+            if (!acc) return;
+
+            const magnitude =
+                Math.sqrt(
+                    (acc.x || 0) * (acc.x || 0) +
+                    (acc.y || 0) * (acc.y || 0) +
+                    (acc.z || 0) * (acc.z || 0)
+                );
+
+            if (magnitude > 12) {
+
+                gpsStatus.textContent =
+                    "? MOTION DETECTED";
+
+                gpsStatus.className =
+                    "gps-status online";
+            }
+
+        }
+    );
+}
+
+
+// ======================
 // GPS Tracking
 // ======================
 
@@ -132,14 +194,14 @@ function startTracking() {
     if (!navigator.geolocation) {
 
         alert(
-            "Geolocation is not supported by this browser."
+            "Geolocation is not supported."
         );
 
         return;
     }
 
     gpsStatus.textContent =
-        "- CONNECTING GPS -";
+        "? CONNECTING GPS";
 
     gpsStatus.className =
         "gps-status connecting";
@@ -150,7 +212,7 @@ function startTracking() {
             function(position) {
 
                 gpsStatus.textContent =
-                    "- GPS ACTIVE -";
+                    "? GPS ACTIVE";
 
                 gpsStatus.className =
                     "gps-status online";
@@ -168,6 +230,7 @@ function startTracking() {
                     speed === null ||
                     speed === undefined
                 ) {
+
                     speed = 0;
                 }
 
@@ -179,56 +242,69 @@ function startTracking() {
 
             function(error) {
 
+                console.log(error);
+
                 gpsStatus.textContent =
-                    "- GPS ERROR -";
+                    "? GPS FAILED";
 
                 gpsStatus.className =
                     "gps-status offline";
 
-                startButton.disabled =
-                    false;
-
-                console.log(error);
+                startMotionDetection();
 
                 alert(
-                    "Location permission is required for speed tracking."
+                    "GPS unavailable. Motion sensor fallback activated."
                 );
+
             },
 
             {
+
                 enableHighAccuracy: true,
+
                 maximumAge: 0,
+
                 timeout: 10000
+
             }
         );
 }
 
 
 // ======================
-// Preset Speed Buttons
+// Speed Presets
 // ======================
 
 presetButtons.forEach(button => {
 
-    button.addEventListener("click", () => {
+    button.addEventListener(
+        "click",
+        () => {
 
-        const speed =
-            button.dataset.speed;
+            const speed =
+                button.dataset.speed;
 
-        speedLimitInput.value =
-            speed;
+            speedLimitInput.value =
+                speed;
 
-        presetButtons.forEach(btn =>
-            btn.classList.remove("active")
-        );
+            presetButtons.forEach(
+                btn =>
+                btn.classList.remove(
+                    "active"
+                )
+            );
 
-        button.classList.add("active");
-    });
+            button.classList.add(
+                "active"
+            );
+
+        }
+    );
 
 });
 
 
-// Default Selected Limit
+// Default preset
 
 const defaultButton =
     document.querySelector(
@@ -236,6 +312,7 @@ const defaultButton =
     );
 
 if (defaultButton) {
+
     defaultButton.classList.add(
         "active"
     );
@@ -243,7 +320,7 @@ if (defaultButton) {
 
 
 // ======================
-// Start Tracking Button
+// Start Tracking
 // ======================
 
 startButton.addEventListener(
@@ -272,11 +349,11 @@ testSlider.addEventListener(
 
 
 // ======================
-// Initial GPS Status
+// Initial Status
 // ======================
 
 gpsStatus.textContent =
-    "- GPS OFF -";
+    "? GPS OFF";
 
 gpsStatus.className =
     "gps-status offline";
