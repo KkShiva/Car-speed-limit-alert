@@ -286,3 +286,24 @@ button:disabled{
     letter-spacing:1px;
     color:#bbb;
 }
+.sensor-panel{
+    margin-bottom:20px;
+    padding:15px;
+    background:#1b1b1b;
+    border:1px solid #333;
+    border-radius:8px;
+    font-size:13px;
+    text-align:left;
+}
+
+.sensor-panel div{
+    margin:4px 0;
+}
+
+.sensor-active{
+    color:#00ff88;
+}
+
+.sensor-inactive{
+    color:#999;
+}

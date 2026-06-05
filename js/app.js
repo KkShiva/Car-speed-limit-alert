@@ -36,6 +36,20 @@ const gpsStatus =
 const sourceStatus =
     document.getElementById("sourceStatus");
 
+const motionStatus =
+    document.getElementById("motionStatus");
+
+const accX =
+    document.getElementById("accX");
+
+const accY =
+    document.getElementById("accY");
+
+const accZ =
+    document.getElementById("accZ");
+
+const accMag =
+    document.getElementById("accMag");
 // ======================
 // Gauge Setup
 // ======================
@@ -154,8 +168,17 @@ function startMotionDetection() {
         "undefined"
     ) {
 
+        motionStatus.textContent =
+            "Motion Sensor: Not Supported";
+
         return;
     }
+
+    motionStatus.textContent =
+        "Motion Sensor: Active";
+
+    motionStatus.className =
+        "sensor-active";
 
     window.addEventListener(
         "devicemotion",
@@ -164,22 +187,46 @@ function startMotionDetection() {
             const acc =
                 event.accelerationIncludingGravity;
 
-            if (!acc) return;
+            if (!acc) {
+                return;
+            }
+
+            const x =
+                Number(acc.x || 0);
+
+            const y =
+                Number(acc.y || 0);
+
+            const z =
+                Number(acc.z || 0);
 
             const magnitude =
                 Math.sqrt(
-                    (acc.x || 0) * (acc.x || 0) +
-                    (acc.y || 0) * (acc.y || 0) +
-                    (acc.z || 0) * (acc.z || 0)
+                    x * x +
+                    y * y +
+                    z * z
                 );
+
+            accX.textContent =
+                `Acc X: ${x.toFixed(2)}`;
+
+            accY.textContent =
+                `Acc Y: ${y.toFixed(2)}`;
+
+            accZ.textContent =
+                `Acc Z: ${z.toFixed(2)}`;
+
+            accMag.textContent =
+                `Magnitude: ${magnitude.toFixed(2)}`;
 
             if (magnitude > 12) {
 
                 gpsStatus.textContent =
                     "? MOTION DETECTED";
 
-                gpsStatus.className =
-                    "gps-status online";
+                sourceStatus.textContent =
+                    "SOURCE: MOTION SENSOR";
+
             }
 
         }
@@ -362,3 +409,9 @@ gpsStatus.className =
 
 sourceStatus.textContent =
     "SOURCE: NONE";
+    
+motionStatus.textContent =
+    "Motion Sensor: Waiting";
+
+motionStatus.className =
+    "sensor-inactive";
