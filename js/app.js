@@ -33,6 +33,8 @@ const presetButtons =
 const gpsStatus =
     document.getElementById("gpsStatus");
 
+const sourceStatus =
+    document.getElementById("sourceStatus");
 
 // ======================
 // Gauge Setup
@@ -357,3 +359,6 @@ gpsStatus.textContent =
 
 gpsStatus.className =
     "gps-status offline";
+
+sourceStatus.textContent =
+    "SOURCE: NONE";

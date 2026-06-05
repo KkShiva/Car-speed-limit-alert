@@ -279,3 +279,10 @@ button:disabled{
     }
 
 }
+
+.source-status{
+    margin-bottom:20px;
+    font-size:14px;
+    letter-spacing:1px;
+    color:#bbb;
+}
