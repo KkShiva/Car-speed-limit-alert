@@ -1,0 +1,192 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#111;
+    color:#fff;
+    font-family:"Segoe UI",sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    width:450px;
+    max-width:95%;
+    text-align:center;
+}
+
+h1{
+    letter-spacing:6px;
+    font-weight:300;
+    margin-bottom:30px;
+}
+
+.speedometer{
+    position:relative;
+}
+
+#gauge{
+    width:100%;
+    height:auto;
+}
+
+.speed-value{
+    position:absolute;
+    top:55%;
+    left:50%;
+    transform:translate(-50%,-50%);
+}
+
+.speed-value span{
+    font-size:70px;
+    font-weight:200;
+}
+
+.speed-value small{
+    display:block;
+    font-size:16px;
+    opacity:.7;
+}
+
+.controls{
+    margin-top:20px;
+}
+
+.controls input{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    margin-bottom:15px;
+    background:#222;
+    color:#fff;
+    border:1px solid #444;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    border:none;
+    background:white;
+    color:black;
+    cursor:pointer;
+    font-size:15px;
+}
+
+button:hover{
+    opacity:.85;
+}
+
+.test-section{
+    margin-top:35px;
+}
+
+#testSlider{
+    width:100%;
+    margin-top:15px;
+}
+
+#testValue{
+    margin-top:10px;
+    font-size:18px;
+}
+.warning-banner{
+    display:none;
+    background:#ff0000;
+    color:white;
+    border:none;
+    border-radius:8px;
+    box-shadow:0 0 20px rgba(255,0,0,.8);
+    padding:18px;
+    font-size:24px;
+    font-weight:800;
+    text-transform:uppercase;
+}
+
+body.alert-active{
+    background:#b30000;
+    transition:background .3s ease;
+}
+
+@keyframes blink{
+    0%{
+        opacity:1;
+    }
+
+    50%{
+        opacity:.3;
+    }
+
+    100%{
+        opacity:1;
+    }
+}
+
+.speed-presets{
+    display:flex;
+    gap:8px;
+    margin:15px 0;
+}
+
+.preset-btn{
+    flex:1;
+    padding:12px;
+    background:#222;
+    color:white;
+    border:1px solid #444;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.preset-btn:hover{
+    background:#333;
+}
+
+.preset-btn.active{
+    background:white;
+    color:black;
+    border-color:white;
+}
+.gps-status{
+    display:inline-block;
+    padding:8px 16px;
+    border-radius:20px;
+    margin-bottom:20px;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:1px;
+}
+
+.gps-status.offline{
+    background:#333;
+    color:#aaa;
+}
+
+.gps-status.connecting{
+    background:#444;
+    color:#fff;
+    animation:pulse 1.2s infinite;
+}
+
+.gps-status.online{
+    background:#fff;
+    color:#111;
+}
+
+@keyframes pulse{
+    0%{
+        opacity:1;
+    }
+
+    50%{
+        opacity:.5;
+    }
+
+    100%{
+        opacity:1;
+    }
+}
