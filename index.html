@@ -1,91 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Speed Alert</title>
 
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/npm/gaugeJS/dist/gauge.min.js"></script>
+    <title>Speed Alert</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/gaugeJS/dist/gauge.min.js"></script>
+
 </head>
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <h1>SPEED ALERT</h1>
-	<div id="warningBanner" class="warning-banner">
-    !!!! OVERSPEED WARNING !!!!
-    </div>
-<div class="gps-status offline" id="gpsStatus">
-    ? GPS OFF
-</div>
-    <div class="speedometer">
+        <h1>SPEED ALERT</h1>
 
-        <canvas id="gauge"></canvas>
+        <div id="warningBanner" class="warning-banner">
+            ? OVERSPEED WARNING ?
+        </div>
 
-        <div class="speed-value">
-            <span id="speed">0</span>
-            <small>km/h</small>
+        <div class="gps-status offline" id="gpsStatus">
+            ? GPS OFF
+        </div>
+
+        <div class="speedometer">
+
+            <canvas id="gauge"></canvas>
+
+            <div class="speed-value">
+                <span id="speed">0</span>
+                <small>km/h</small>
+            </div>
+
+        </div>
+
+        <div class="controls">
+
+            <label for="speedLimit">
+                Speed Limit
+            </label>
+
+            <input
+                type="number"
+                id="speedLimit"
+                value="60"
+                min="1">
+
+            <div class="speed-presets">
+
+                <button
+                    type="button"
+                    class="preset-btn"
+                    data-speed="20">
+                    20
+                </button>
+
+                <button
+                    type="button"
+                    class="preset-btn"
+                    data-speed="40">
+                    40
+                </button>
+
+                <button
+                    type="button"
+                    class="preset-btn"
+                    data-speed="60">
+                    60
+                </button>
+
+                <button
+                    type="button"
+                    class="preset-btn"
+                    data-speed="80">
+                    80
+                </button>
+
+                <button
+                    type="button"
+                    class="preset-btn"
+                    data-speed="100">
+                    100
+                </button>
+
+            </div>
+
+            <button id="startTracking">
+                Start Tracking
+            </button>
+
+        </div>
+
+        <div class="test-section">
+
+            <h3>Test Mode</h3>
+
+            <input
+                type="range"
+                min="0"
+                max="180"
+                value="0"
+                id="testSlider">
+
+            <div id="testValue">
+                Test Speed: 0 km/h
+            </div>
+
         </div>
 
     </div>
 
-    <div class="controls">
+    <audio id="alertSound" loop>
+        <source src="audio/alert.mp3" type="audio/mpeg">
+    </audio>
 
-        <label>Speed Limit</label>
-
-        <input
-            type="number"
-            id="speedLimit"
-            value="60"
-            min="1"
-        >
-<div class="speed-presets">
-
-    <button class="preset-btn" data-speed="20">20</button>
-
-    <button class="preset-btn" data-speed="40">40</button>
-
-    <button class="preset-btn" data-speed="60">60</button>
-
-    <button class="preset-btn" data-speed="80">80</button>
-
-    <button class="preset-btn" data-speed="100">100</button>
-
-</div>
-        <button id="startTracking">
-            Start Tracking
-        </button>
-
-    </div>
-
-    <div class="test-section">
-
-        <h3>Test Mode</h3>
-
-        <input
-            type="range"
-            min="0"
-            max="180"
-            value="0"
-            id="testSlider"
-        >
-
-        <div id="testValue">
-            Test Speed: 0 km/h
-        </div>
-
-    </div>
-
-</div>
-
-<audio id="alertSound" loop>
-    <source src="audio/alert.mp3" type="audio/mpeg">
-</audio>
-
-<script src="js/app.js"></script>
+    <script src="js/app.js"></script>
 
 </body>
+
 </html>
