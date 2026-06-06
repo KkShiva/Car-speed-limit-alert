@@ -307,3 +307,9 @@ button:disabled{
 .sensor-inactive{
     color:#999;
 }
+#wakeLockStatus{
+    margin-top:10px;
+    margin-bottom:15px;
+    color:#bbb;
+    font-size:14px;
+}
