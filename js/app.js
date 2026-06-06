@@ -1,9 +1,10 @@
 let currentSpeed = 0;
 let watchId = null;
+let wakeLock = null;
 
 
 // ======================
-// Elements
+// ELEMENTS
 // ======================
 
 const speedDisplay =
@@ -50,8 +51,16 @@ const accZ =
 
 const accMag =
     document.getElementById("accMag");
+
+const wakeLockBtn =
+    document.getElementById("wakeLockBtn");
+
+const wakeLockStatus =
+    document.getElementById("wakeLockStatus");
+
+
 // ======================
-// Gauge Setup
+// GAUGE SETUP
 // ======================
 
 const opts = {
@@ -99,7 +108,85 @@ gauge.set(0);
 
 
 // ======================
-// Warning Logic
+// WAKE LOCK
+// ======================
+
+async function enableWakeLock() {
+
+    try {
+
+        if (
+            !("wakeLock" in navigator)
+        ) {
+
+            wakeLockStatus.textContent =
+                "Screen Awake: Unsupported";
+
+            return;
+        }
+
+        wakeLock =
+            await navigator.wakeLock.request(
+                "screen"
+            );
+
+        wakeLockStatus.textContent =
+            "Screen Awake: ON";
+
+        wakeLockBtn.textContent =
+            "Screen Awake Enabled";
+
+        wakeLockBtn.disabled =
+            true;
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        wakeLockStatus.textContent =
+            "Screen Awake: Error";
+    }
+}
+
+document.addEventListener(
+    "visibilitychange",
+    async () => {
+
+        if (
+            wakeLock &&
+            document.visibilityState ===
+            "visible"
+        ) {
+
+            try {
+
+                wakeLock =
+                    await navigator.wakeLock.request(
+                        "screen"
+                    );
+
+            }
+            catch (err) {
+
+                console.error(err);
+
+            }
+        }
+    }
+);
+
+if (wakeLockBtn) {
+
+    wakeLockBtn.addEventListener(
+        "click",
+        enableWakeLock
+    );
+}
+
+
+// ======================
+// SPEED LIMIT CHECK
 // ======================
 
 function checkLimit(speed) {
@@ -116,7 +203,10 @@ function checkLimit(speed) {
         warningBanner.style.display =
             "block";
 
-        if (alertSound.paused) {
+        if (
+            alertSound &&
+            alertSound.paused
+        ) {
 
             alertSound.play()
                 .catch(() => {});
@@ -133,15 +223,19 @@ function checkLimit(speed) {
         warningBanner.style.display =
             "none";
 
-        alertSound.pause();
+        if (alertSound) {
 
-        alertSound.currentTime = 0;
+            alertSound.pause();
+
+            alertSound.currentTime =
+                0;
+        }
     }
 }
 
 
 // ======================
-// Update Speed
+// UPDATE SPEED
 // ======================
 
 function updateSpeed(speed) {
@@ -158,113 +252,176 @@ function updateSpeed(speed) {
 
 
 // ======================
-// Motion Sensor Fallback
+// MOTION SENSOR
 // ======================
 
-function startMotionDetection() {
+async function startMotionDetection() {
 
-    if (
-        typeof DeviceMotionEvent ===
-        "undefined"
-    ) {
+    try {
 
-        motionStatus.textContent =
-            "Motion Sensor: Not Supported";
+        if (
+            typeof DeviceMotionEvent ===
+            "undefined"
+        ) {
 
-        return;
-    }
+            if (motionStatus) {
 
-    motionStatus.textContent =
-        "Motion Sensor: Active";
+                motionStatus.textContent =
+                    "Motion Sensor: Not Supported";
+            }
 
-    motionStatus.className =
-        "sensor-active";
+            return;
+        }
 
-    window.addEventListener(
-        "devicemotion",
-        event => {
+        if (
+            typeof DeviceMotionEvent
+                .requestPermission ===
+            "function"
+        ) {
 
-            const acc =
-                event.accelerationIncludingGravity;
+            const permission =
+                await DeviceMotionEvent
+                    .requestPermission();
 
-            if (!acc) {
+            if (
+                permission !==
+                "granted"
+            ) {
+
+                if (motionStatus) {
+
+                    motionStatus.textContent =
+                        "Motion Sensor: Permission Denied";
+                }
+
                 return;
             }
+        }
 
-            const x =
-                Number(acc.x || 0);
+        if (motionStatus) {
 
-            const y =
-                Number(acc.y || 0);
+            motionStatus.textContent =
+                "Motion Sensor: Active";
 
-            const z =
-                Number(acc.z || 0);
+            motionStatus.className =
+                "sensor-active";
+        }
 
-            const magnitude =
-                Math.sqrt(
-                    x * x +
-                    y * y +
-                    z * z
-                );
+        window.addEventListener(
+            "devicemotion",
+            event => {
 
-            accX.textContent =
-                `Acc X: ${x.toFixed(2)}`;
+                const acc =
+                    event.accelerationIncludingGravity;
 
-            accY.textContent =
-                `Acc Y: ${y.toFixed(2)}`;
+                if (!acc) {
+                    return;
+                }
 
-            accZ.textContent =
-                `Acc Z: ${z.toFixed(2)}`;
+                const x =
+                    Number(acc.x || 0);
 
-            accMag.textContent =
-                `Magnitude: ${magnitude.toFixed(2)}`;
+                const y =
+                    Number(acc.y || 0);
 
-            if (magnitude > 12) {
+                const z =
+                    Number(acc.z || 0);
 
-                gpsStatus.textContent =
-                    "? MOTION DETECTED";
+                const magnitude =
+                    Math.sqrt(
+                        x * x +
+                        y * y +
+                        z * z
+                    );
 
-                sourceStatus.textContent =
-                    "SOURCE: MOTION SENSOR";
+                if (accX) {
+
+                    accX.textContent =
+                        `Acc X: ${x.toFixed(2)}`;
+                }
+
+                if (accY) {
+
+                    accY.textContent =
+                        `Acc Y: ${y.toFixed(2)}`;
+                }
+
+                if (accZ) {
+
+                    accZ.textContent =
+                        `Acc Z: ${z.toFixed(2)}`;
+                }
+
+                if (accMag) {
+
+                    accMag.textContent =
+                        `Magnitude: ${magnitude.toFixed(2)}`;
+                }
+
+                if (magnitude > 12) {
+
+                    gpsStatus.textContent =
+                        "● MOTION DETECTED";
+
+                    sourceStatus.textContent =
+                        "SOURCE: MOTION SENSOR";
+                }
 
             }
+        );
 
-        }
-    );
+    }
+    catch (error) {
+
+        console.error(error);
+
+    }
 }
 
 
 // ======================
-// GPS Tracking
+// GPS TRACKING
 // ======================
 
 function startTracking() {
 
-    if (!navigator.geolocation) {
+    enableWakeLock();
+
+    if (
+        !navigator.geolocation
+    ) {
 
         alert(
-            "Geolocation is not supported."
+            "Geolocation not supported."
         );
+
+        startMotionDetection();
 
         return;
     }
 
     gpsStatus.textContent =
-        "? CONNECTING GPS";
+        "● CONNECTING GPS";
 
     gpsStatus.className =
         "gps-status connecting";
 
+    sourceStatus.textContent =
+        "SOURCE: GPS (CONNECTING)";
+
     watchId =
         navigator.geolocation.watchPosition(
 
-            function(position) {
+            position => {
 
                 gpsStatus.textContent =
-                    "? GPS ACTIVE";
+                    "● GPS ACTIVE";
 
                 gpsStatus.className =
                     "gps-status online";
+
+                sourceStatus.textContent =
+                    "SOURCE: GPS";
 
                 startButton.textContent =
                     "TRACKING ACTIVE";
@@ -287,29 +444,34 @@ function startTracking() {
                     speed * 3.6;
 
                 updateSpeed(speed);
+
             },
 
-            function(error) {
+            error => {
 
-                console.log(error);
+                console.error(error);
 
                 gpsStatus.textContent =
-                    "? GPS FAILED";
+                    "● GPS FAILED";
 
                 gpsStatus.className =
                     "gps-status offline";
 
+                sourceStatus.textContent =
+                    "SOURCE: MOTION SENSOR";
+
                 startMotionDetection();
 
                 alert(
-                    "GPS unavailable. Motion sensor fallback activated."
+                    "GPS unavailable. Motion sensor activated."
                 );
 
             },
 
             {
 
-                enableHighAccuracy: true,
+                enableHighAccuracy:
+                    true,
 
                 maximumAge: 0,
 
@@ -321,39 +483,43 @@ function startTracking() {
 
 
 // ======================
-// Speed Presets
+// SPEED PRESETS
 // ======================
 
-presetButtons.forEach(button => {
+presetButtons.forEach(
+    button => {
 
-    button.addEventListener(
-        "click",
-        () => {
+        button.addEventListener(
+            "click",
+            () => {
 
-            const speed =
-                button.dataset.speed;
+                const speed =
+                    button.dataset.speed;
 
-            speedLimitInput.value =
-                speed;
+                speedLimitInput.value =
+                    speed;
 
-            presetButtons.forEach(
-                btn =>
-                btn.classList.remove(
+                presetButtons.forEach(
+                    btn =>
+                    btn.classList.remove(
+                        "active"
+                    )
+                );
+
+                button.classList.add(
                     "active"
-                )
-            );
+                );
 
-            button.classList.add(
-                "active"
-            );
+            }
+        );
 
-        }
-    );
-
-});
+    }
+);
 
 
-// Default preset
+// ======================
+// DEFAULT PRESET
+// ======================
 
 const defaultButton =
     document.querySelector(
@@ -369,7 +535,7 @@ if (defaultButton) {
 
 
 // ======================
-// Start Tracking
+// START BUTTON
 // ======================
 
 startButton.addEventListener(
@@ -379,12 +545,12 @@ startButton.addEventListener(
 
 
 // ======================
-// Test Mode
+// TEST MODE
 // ======================
 
 testSlider.addEventListener(
     "input",
-    function() {
+    function () {
 
         const speed =
             Number(this.value);
@@ -392,26 +558,42 @@ testSlider.addEventListener(
         testValue.textContent =
             `Test Speed: ${speed} km/h`;
 
+        sourceStatus.textContent =
+            "SOURCE: TEST MODE";
+
         updateSpeed(speed);
+
     }
 );
 
 
 // ======================
-// Initial Status
+// INITIAL STATUS
 // ======================
 
 gpsStatus.textContent =
-    "? GPS OFF";
+    "● GPS OFF";
 
 gpsStatus.className =
     "gps-status offline";
 
-sourceStatus.textContent =
-    "SOURCE: NONE";
-    
-motionStatus.textContent =
-    "Motion Sensor: Waiting";
+if (sourceStatus) {
 
-motionStatus.className =
-    "sensor-inactive";
+    sourceStatus.textContent =
+        "SOURCE: NONE";
+}
+
+if (motionStatus) {
+
+    motionStatus.textContent =
+        "Motion Sensor: Waiting";
+
+    motionStatus.className =
+        "sensor-inactive";
+}
+
+if (wakeLockStatus) {
+
+    wakeLockStatus.textContent =
+        "Screen Awake: OFF";
+}
