@@ -110,8 +110,9 @@ http://localhost:8000
 Add screenshots here:
 
 ```markdown
-![Main Screen](screenshots/main.png)
-![Overspeed Alert](screenshots/alert.png)
+<img width="358" height="720" alt="image" src="https://github.com/user-attachments/assets/6ea72448-2e16-4dea-9b57-5f2311b6966f" />
+<img width="334" height="806" alt="image" src="https://github.com/user-attachments/assets/bf75d301-4fbb-48a8-bbe8-530fff6ddeea" />
+
 ```
 
 ---
